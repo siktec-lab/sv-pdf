@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npx tailwindcss init:*)",
+      "Bash(./node_modules/.bin/tailwindcss:*)",
+      "Bash(cat:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(find:*)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "mcp__ide__getDiagnostics",
+      "WebFetch(domain:tailwindcss.com)",
+      "Bash(npm run check:*)",
+      "WebFetch(domain:svelte.dev)"
+    ],
+    "deny": []
+  }
+}

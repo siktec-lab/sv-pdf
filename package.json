@@ -1,0 +1,76 @@
+{
+    "name": "sv-pdf",
+    "version": "1.0.0",
+    "description": "A comprehensive PDF viewer and acceptance component library for Svelte",
+    "author": "SIKTEC-LAB",
+    "license": "MIT",
+    "type": "module",
+    "keywords": [
+        "svelte",
+        "pdf",
+        "viewer",
+        "component",
+        "typescript",
+        "pdf.js"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/siktec-lab/sv-pdf.git"
+    },
+    "bugs": {
+        "url": "https://github.com/siktec-lab/sv-pdf/issues"
+    },
+    "homepage": "https://github.com/siktec-lab/sv-pdf#readme",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "svelte": "./dist/index.js",
+            "default": "./dist/index.js"
+        }
+    },
+    "files": [
+        "dist",
+        "!dist/**/*.test.*",
+        "!dist/**/*.spec.*"
+    ],
+    "peerDependencies": {
+        "svelte": "^4.0.0 || ^5.0.0",
+        "pdfjs-dist": "^4.0.0 || ^5.0.0"
+    },
+    "devDependencies": {
+        "@sveltejs/adapter-auto": "^6.0.0",
+        "@sveltejs/kit": "^2.22.0",
+        "@sveltejs/package": "^2.0.0",
+        "@sveltejs/vite-plugin-svelte": "^6.0.0",
+        "@tailwindcss/typography": "^0.5.16",
+        "autoprefixer": "^10.4.21",
+        "esm-env": "^1.0.0",
+        "postcss": "^8.5.6",
+        "publint": "^0.1.16",
+        "svelte": "^5.0.0",
+        "svelte-check": "^4.0.0",
+        "tailwindcss": "^4.1.11",
+        "typescript": "^5.0.0",
+        "vite": "^7.0.4"
+    },
+    "dependencies": {
+        "@tailwindcss/postcss": "^4.1.11",
+        "@tailwindcss/vite": "^4.1.11",
+        "pdfjs-dist": "^5.4.54"
+    },
+    "scripts": {
+        "dev": "vite dev",
+        "build": "vite build && npm run package",
+        "preview": "vite preview",
+        "package": "svelte-kit sync && svelte-package && publint",
+        "prepublishOnly": "npm run package",
+        "prepare": "svelte-kit sync || echo ''",
+        "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+        "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+        "lint": "prettier --check . && eslint .",
+        "format": "prettier --write ."
+    },
+    "svelte": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "sideEffects": false
+}
