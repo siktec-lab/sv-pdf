@@ -479,6 +479,7 @@
         ontouchstart={handleTouchStart}
         ontouchmove={handleTouchMove}
         ontouchend={handleTouchEnd}
+        dir="ltr"
     >
         {#if isLoading}
             <div class="flex items-center justify-center h-full">

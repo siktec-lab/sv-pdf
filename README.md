@@ -4,13 +4,13 @@ A PDF viewer and acceptance component library for Svelte applications. Built wit
 
 ## Features
 
-- 📄 **PDFViewer**: Full-featured PDF viewer with zoom, pan, and navigation controls
-- ✅ **PDFAccept**: PDF acceptance component that tracks user progress through document
-- 🔍 **Zoom Controls**: Zoom in/out, auto-fit, and reset functionality
-- 🖱️ **Pan & Navigate**: Mouse and touch support for panning and navigation
-- 📱 **Responsive**: Mobile-friendly with touch gestures
-- 🎨 **Customizable**: Flexible styling and custom control snippets
-- 📦 **TypeScript**: Full TypeScript support with proper type definitions
+- **PDFViewer**: Full-featured PDF viewer with zoom, pan, and navigation controls
+- **PDFAccept**: PDF acceptance component that tracks user progress through document
+- **Zoom Controls**: Zoom in/out, auto-fit, and reset functionality
+- **Pan & Navigate**: Mouse and touch support for panning and navigation
+- **Responsive**: Mobile-friendly with touch gestures
+- **Customizable**: Flexible styling and custom control snippets
+- **TypeScript**: Full TypeScript support with proper type definitions
 
 ## Installation
 
