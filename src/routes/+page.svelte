@@ -8,6 +8,7 @@
     let selectedPdf = $state('test-mutav-harel.pdf');
     
     const availablePdfs = [
+        '12.pdf',
         '16243-nispah-bet.pdf',
         'clal-risk-form-525-17882.pdf', 
         'test-mutav-harel.pdf',
