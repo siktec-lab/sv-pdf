@@ -5,21 +5,41 @@ static/
 build/
 .output/
 
+# Routes and pages (SvelteKit demo app)
+routes/
+
 # Configuration files
 vite.config.ts
 tsconfig.json
 postcss.config.js
 tailwind.config.js
 svelte.config.js
+.prettierrc
+.prettierignore
+.eslintrc*
+.editorconfig
+
+# Git files
+.git/
+.gitignore
+.gitattributes
 
 # Dependencies and locks
 node_modules/
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
+bun.lockb
 
 # Development documentation
 PUBLISHING.md
+CHANGELOG.md
+
+# Backup files
+*.bak
+*.backup
+*.tmp
+*~
 
 # Logs and cache
 *.log
@@ -39,7 +59,6 @@ yarn-debug.log*
 Thumbs.db
 *.swp
 *.swo
-*~
 
 # Deploy directories
 .vercel/
@@ -51,5 +70,14 @@ coverage/
 *.lcov
 .nyc_output
 
+# Test files
+**/*.test.*
+**/*.spec.*
+tests/
+__tests__/
+
 # Package test artifacts
 *.tgz
+
+# GitHub files
+.github/

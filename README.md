@@ -6,11 +6,14 @@ A PDF viewer and acceptance component library for Svelte applications. Built wit
 
 - **PDFViewer**: Full-featured PDF viewer with zoom, pan, and navigation controls
 - **PDFAccept**: PDF acceptance component that tracks user progress through document
+- **Modular Controls**: Override individual control sections (navigation, zoom, actions) with custom snippets
+- **Flexible Customization**: Disable specific controls and customize all text/labels via props
 - **Zoom Controls**: Zoom in/out, auto-fit, and reset functionality
 - **Pan & Navigate**: Mouse and touch support for panning and navigation
-- **Responsive**: Mobile-friendly with touch gestures
-- **Customizable**: Flexible styling and custom control snippets
+- **Responsive**: Mobile-friendly with touch gestures and auto-fit scaling
+- **Progress Tracking**: Built-in progress indicator for acceptance workflows
 - **TypeScript**: Full TypeScript support with proper type definitions
+- **Accessible**: Customizable ARIA labels and keyboard-friendly controls
 
 ## Installation
 
@@ -68,7 +71,38 @@ You'll also need to ensure the PDF.js worker file is accessible in your public d
 | `autoFitHeight` | `boolean` | `false` | Auto-fit PDF to container height |
 | `showControls` | `boolean` | `true` | Show navigation/zoom controls |
 | `controlsPosition` | `'top' \| 'bottom'` | `'top'` | Position of controls |
-| `controls` | `Snippet<[ControlsProps]>` | - | Custom controls snippet |
+| `controls` | `Snippet<[ControlsProps]>` | - | Custom controls snippet (full override) |
+| `navigationControls` | `Snippet<[ControlsProps]>` | - | Custom navigation controls snippet |
+| `zoomControls` | `Snippet<[ControlsProps]>` | - | Custom zoom controls snippet |
+| `actionControls` | `Snippet<[ControlsProps]>` | - | Custom action controls snippet |
+| `disableControls` | `DisableControls` | `{}` | Selectively disable control sections |
+| `controlsContent` | `Record<string, string>` | `{}` | Customize button text and labels |
+
+#### DisableControls Object
+
+```typescript
+{
+  navigation?: boolean;  // Hide prev/next/page indicator
+  zoom?: boolean;        // Hide zoom in/out/scale display
+  actions?: boolean;     // Hide auto-fit and reset buttons
+}
+```
+
+#### ControlsContent Keys (PDFViewer)
+
+```typescript
+{
+  prevButton?: string;      // Default: "Prev"
+  nextButton?: string;      // Default: "Next"
+  zoomOutButton?: string;   // Default: "−"
+  zoomInButton?: string;    // Default: "+"
+  autoFitButton?: string;   // Default: "Auto Fit"
+  resetButton?: string;     // Default: "Reset"
+  loadingText?: string;     // Default: "Loading PDF..."
+  errorText?: string;       // Default: "Error: {msg}" (use {msg} for error message)
+  ariaLabel?: string;       // Default: "PDF viewer - Use mouse to pan and scroll to zoom"
+}
+```
 
 ### PDFAccept Props
 
@@ -78,12 +112,134 @@ You'll also need to ensure the PDF.js worker file is accessible in your public d
 | `base64` | `string` | - | Base64 encoded PDF data |
 | `width` | `number \| string` | `800` | Viewer width |
 | `height` | `number \| string` | `600` | Viewer height |
-| `controls` | `Snippet<[AcceptControlsProps]>` | - | Custom controls snippet |
+| `autoFitHeight` | `boolean` | `false` | Auto-fit PDF to container height |
+| `controlsPosition` | `'top' \| 'bottom'` | `'bottom'` | Position of controls |
+| `controls` | `Snippet<[AcceptControlsProps]>` | - | Custom controls snippet (full override) |
+| `navigationControls` | `Snippet<[AcceptControlsProps]>` | - | Custom navigation controls snippet |
+| `zoomControls` | `Snippet<[AcceptControlsProps]>` | - | Custom zoom controls snippet |
+| `actionControls` | `Snippet<[AcceptControlsProps]>` | - | Custom action controls snippet |
+| `progressIndicator` | `Snippet<[AcceptControlsProps]>` | - | Custom progress indicator snippet |
+| `disableControls` | `DisableControls` | `{}` | Selectively disable control sections |
+| `controlsContent` | `Record<string, string>` | `{}` | Customize button text and labels |
 | `onComplete` | `() => void` | - | Callback when user completes acceptance |
+
+#### DisableControls Object (PDFAccept)
+
+```typescript
+{
+  navigation?: boolean;  // Hide prev/next/page indicator
+  zoom?: boolean;        // Hide zoom in/out/scale display
+  actions?: boolean;     // Hide reset and done buttons
+  progress?: boolean;    // Hide progress indicator overlay
+}
+```
+
+#### ControlsContent Keys (PDFAccept)
+
+```typescript
+{
+  prevButton?: string;      // Default: "Prev"
+  nextButton?: string;      // Default: "Next"
+  zoomOutButton?: string;   // Default: "−"
+  zoomInButton?: string;    // Default: "+"
+  resetButton?: string;     // Default: "Reset"
+  doneButton?: string;      // Default: "Done"
+  completedText?: string;   // Default: "✓ Completed"
+  progressText?: string;    // Default: "Progress: {current}/{total}" (use placeholders)
+  loadingText?: string;     // Default: "Loading PDF..."
+  errorText?: string;       // Default: "Error: {msg}"
+  ariaLabel?: string;       // Default: "PDF viewer - Use mouse to pan and scroll to zoom"
+}
+```
 
 ## Advanced Usage
 
-### Custom Controls
+### Customizing Text and Labels
+
+```svelte
+<script>
+  import { PDFViewer } from 'sv-pdf';
+</script>
+
+<PDFViewer 
+  src="/document.pdf"
+  controlsContent={{
+    prevButton: '◀ Previous',
+    nextButton: 'Next ▶',
+    zoomInButton: '🔍+',
+    zoomOutButton: '🔍−',
+    resetButton: '↺ Reset View',
+    autoFitButton: '⛶ Fit Screen',
+    loadingText: 'Loading your document...',
+    errorText: 'Failed to load: {msg}'
+  }}
+/>
+```
+
+### Disabling Specific Controls
+
+```svelte
+<script>
+  import { PDFViewer } from 'sv-pdf';
+</script>
+
+<!-- Hide zoom controls, keep navigation only -->
+<PDFViewer 
+  src="/document.pdf"
+  disableControls={{ zoom: true, actions: true }}
+/>
+```
+
+### Modular Custom Controls
+
+Override individual control sections while keeping others default:
+
+```svelte
+<script>
+  import { PDFViewer } from 'sv-pdf';
+</script>
+
+<PDFViewer src="/document.pdf">
+  {#snippet navigationControls({ currentPage, totalPages, nextPage, prevPage })}
+    <div class="flex gap-2">
+      <button onclick={prevPage} class="custom-btn">← Back</button>
+      <span class="font-bold">{currentPage} of {totalPages}</span>
+      <button onclick={nextPage} class="custom-btn">Forward →</button>
+    </div>
+  {/snippet}
+  <!-- Zoom and action controls remain default -->
+</PDFViewer>
+```
+
+### PDFAccept with Custom Progress Indicator
+
+```svelte
+<script>
+  import { PDFAccept } from 'sv-pdf';
+</script>
+
+<PDFAccept 
+  src="/terms.pdf"
+  controlsContent={{
+    doneButton: 'I Accept',
+    completedText: '✅ Accepted',
+    progressText: 'Read: {current}/{total} pages'
+  }}
+  onComplete={() => alert('Terms accepted!')}
+>
+  {#snippet progressIndicator({ isCompleted, maxPageReached, totalPages })}
+    <div class="absolute top-2 left-2 px-3 py-1 bg-blue-500 text-white rounded-md">
+      {#if isCompleted}
+        ✓ Document Accepted
+      {:else}
+        📖 Pages read: {maxPageReached}/{totalPages}
+      {/if}
+    </div>
+  {/snippet}
+</PDFAccept>
+```
+
+### Full Custom Controls
 
 ```svelte
 <script>

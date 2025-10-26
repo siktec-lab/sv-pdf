@@ -53,14 +53,15 @@
 </script>
 
 <div class="h-[100vh] bg-gray-50 py-8">
-    <div class="container mx-auto px-4 border-2 border-amber-200 h-[80vh] w-[50vw]">
+    <div class="container mx-auto px-4 border-2 border-amber-200 h-[80vh] w-[330px]">
         <h3 class="text-lg font-semibold mb-4 text-gray-800 text-center">PDF Accept (Sequential Navigation)</h3>
         <PDFAccept
             src={pdfBase64 ? undefined : pdfUrl}
             base64={pdfBase64 || undefined}
             width="100%"
-            height="150px"
+            height="600px"
             onComplete={handlePDFAcceptComplete}
+            controlsPosition="top"
         />
     </div>
 </div>
