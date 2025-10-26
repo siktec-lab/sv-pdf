@@ -211,6 +211,31 @@
                         onComplete={handlePDFAcceptComplete}
                     />
                 </div>
+
+                <!-- Granular Disable Controls Demo - Viewer -->
+                <div class="flex flex-col">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800 text-center">Granular Disable - Viewer (No Prev/ZoomOut/Reset)</h3>
+                    <PDFViewer
+                        src={pdfBase64 ? undefined : pdfUrl}
+                        base64={pdfBase64 || undefined}
+                        width="100%"
+                        height="70vh"
+                        disableControls={{ prev: true, zoomOut: true, reset: true }}
+                    />
+                </div>
+
+                <!-- Granular Disable Controls Demo - Accept -->
+                <div class="flex flex-col">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800 text-center">Granular Disable - Accept (No ZoomIn/Done)</h3>
+                    <PDFAccept
+                        src={pdfBase64 ? undefined : pdfUrl}
+                        base64={pdfBase64 || undefined}
+                        width="100%"
+                        height="70vh"
+                        disableControls={{ zoomIn: true, done: true }}
+                        onComplete={handlePDFAcceptComplete}
+                    />
+                </div>
             </div>
         {:else}
             <div class="text-center text-gray-500 mt-12">
