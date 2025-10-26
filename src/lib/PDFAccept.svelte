@@ -133,6 +133,12 @@
     function handlePageChange(page: number) {
         maxPageReached = Math.max(maxPageReached, page);
         onPageChange?.(page);
+        
+        // Auto-complete when done button is disabled and user reaches last page
+        if (disableControls.done && maxPageReached >= api.totalPages && !isCompleted) {
+            isCompleted = true;
+            onComplete?.();
+        }
     }
 
     // Reset state when PDF source changes
