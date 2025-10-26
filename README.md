@@ -106,6 +106,8 @@ export default {
 | `disableControls` | `PDFViewerDisableControls` | `{}` | Selectively disable control sections or individual buttons |
 | `controlsContent` | `PDFViewerControlsContent` | `{}` | Customize button text and labels |
 | `baseStyling` | `PDFViewerStyling` | `{}` | Customize component styling with Tailwind classes |
+| `onPageChange` | `(page: number) => void` | - | Callback when page changes |
+| `api` | `any` | - | Bindable API object for programmatic control |
 
 #### PDFViewerDisableControls Object
 
@@ -153,6 +155,7 @@ export default {
 | `width` | `number \| string` | `800` | Viewer width |
 | `height` | `number \| string` | `600` | Viewer height |
 | `autoFitHeight` | `boolean` | `false` | Auto-fit PDF to container height |
+| `showControls` | `boolean` | `true` | Show navigation/zoom controls |
 | `controlsPosition` | `'top' \| 'bottom'` | `'bottom'` | Position of controls |
 | `resetZoomMode` | `'width' \| 'height' \| '100%'` | `'width'` | Reset button zoom behavior |
 | `controls` | `Snippet<[AcceptControlsProps]>` | - | Custom controls snippet (full override) |
@@ -163,7 +166,9 @@ export default {
 | `disableControls` | `PDFAcceptDisableControls` | `{}` | Selectively disable control sections or individual buttons |
 | `controlsContent` | `PDFAcceptControlsContent` | `{}` | Customize button text and labels |
 | `baseStyling` | `PDFAcceptStyling` | `{}` | Customize component styling with Tailwind classes |
+| `onPageChange` | `(page: number) => void` | - | Callback when page changes |
 | `onComplete` | `() => void` | - | Callback when user completes acceptance |
+| `api` | `any` | - | Bindable API object for programmatic control |
 
 #### PDFAcceptDisableControls Object
 
@@ -447,6 +452,64 @@ Override individual control sections while keeping others default:
 
 <PDFViewer base64={base64Data} />
 ```
+
+### Programmatic Control with API Binding
+
+Access the PDF viewer's API to control it programmatically:
+
+```svelte
+<script>
+  import { PDFViewer } from 'sv-pdf';
+  
+  let pdfApi;
+  
+  function jumpToPage(page: number) {
+    pdfApi?.setPage(page);
+  }
+  
+  function handlePageChange(page: number) {
+    console.log('Current page:', page);
+  }
+</script>
+
+<PDFViewer 
+  src="/document.pdf"
+  bind:api={pdfApi}
+  onPageChange={handlePageChange}
+/>
+
+<div class="controls">
+  <button onclick={() => jumpToPage(1)}>Go to Page 1</button>
+  <button onclick={() => pdfApi?.zoomIn()}>Zoom In</button>
+  <button onclick={() => pdfApi?.zoomOut()}>Zoom Out</button>
+  <button onclick={() => pdfApi?.resetZoom()}>Reset Zoom</button>
+  <button onclick={() => pdfApi?.toggleAutoFit()}>Toggle Auto Fit</button>
+  
+  {#if pdfApi}
+    <p>Current Page: {pdfApi.currentPage} / {pdfApi.totalPages}</p>
+    <p>Zoom: {Math.round(pdfApi.scale * 100)}%</p>
+    <p>Auto Fit: {pdfApi.autoFitEnabled ? 'On' : 'Off'}</p>
+  {/if}
+</div>
+```
+
+**Available API Methods:**
+- `setPage(page: number): Promise<void>` - Navigate to specific page
+- `prevPage(): Promise<void>` - Go to previous page
+- `nextPage(): Promise<void>` - Go to next page
+- `zoomIn(): Promise<void>` - Zoom in
+- `zoomOut(): Promise<void>` - Zoom out
+- `resetZoom(): Promise<void>` - Reset zoom (behavior based on `resetZoomMode` prop)
+- `toggleAutoFit(): Promise<void>` - Toggle auto-fit mode
+
+**Available API Properties (read-only):**
+- `currentPage: number` - Current page number
+- `totalPages: number` - Total number of pages
+- `scale: number` - Current zoom scale
+- `autoFitEnabled: boolean` - Auto-fit mode state
+- `isRendering: boolean` - Whether currently rendering
+- `isLoading: boolean` - Whether PDF is loading
+- `error: string` - Error message if any
 
 ### TypeScript Support
 
