@@ -21,7 +21,32 @@ A PDF viewer and acceptance component library for Svelte applications. Built wit
 npm install sv-pdf pdfjs-dist
 ```
 
-You'll also need to ensure the PDF.js worker file is accessible in your public directory. Copy `pdf.worker.min.mjs` from `pdfjs-dist/build/` to your `static` folder.
+### Requirements
+
+- **Tailwind CSS**: This library uses Tailwind CSS classes. You must have Tailwind CSS configured in your project.
+- **PDF.js Worker**: Copy `pdf.worker.min.mjs` from `pdfjs-dist/build/` to your `static` (or `public`) folder.
+
+If you don't have Tailwind CSS set up yet:
+
+```bash
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init
+```
+
+Make sure your `tailwind.config.js` includes the library's components:
+
+```js
+export default {
+  content: [
+    './src/**/*.{html,js,svelte,ts}',
+    './node_modules/sv-pdf/dist/**/*.svelte'
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
 
 ## Basic Usage
 
@@ -286,6 +311,7 @@ The components use Tailwind CSS classes by default. You can override styles by t
 ## Requirements
 
 - Svelte 4.x or 5.x
+- Tailwind CSS 3.x or 4.x
 - PDF.js 4.x or 5.x
 - Modern browser with ES6+ support
 
