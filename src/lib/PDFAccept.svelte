@@ -25,6 +25,7 @@
         base64?: string;
         width?: number | string;
         height?: number | string;
+        autoFitHeight?: false;
         controls?: Snippet<[AcceptControlsProps]>;
         onComplete?: () => void;
     }
@@ -34,10 +35,12 @@
         base64, 
         width = 800, 
         height = 600,
+        autoFitHeight = false,
         controls,
         onComplete
     }: Props = $props();
 
+    let autoFitEnabled = $state(autoFitHeight);
     let containerWidth = $state(0);
     let containerHeight = $state(0);
     let resizeObserver: ResizeObserver;
@@ -118,7 +121,9 @@
             currentPage = 1;
             
             // Always auto-fit to height for PDFAccept
-            await calculateAutoFitScale();
+            if (autoFitEnabled) {
+                await calculateAutoFitScale();
+            }
             
             // Wait a bit for canvas element to be available, then render
             setTimeout(async () => {
@@ -300,15 +305,17 @@
                     containerHeight = newHeight;
                     
                     // Recalculate autofit if enabled (debounced)
-                    setTimeout(() => {
-                        if (pdfDocument && !isRendering) {
-                            calculateAutoFitScale().then(() => {
-                                if (canvasElement && !isRendering) {
-                                    renderPage();
-                                }
-                            });
-                        }
-                    }, 200);
+                    if (autoFitEnabled && pdfDocument && !isRendering) {
+                        setTimeout(() => {
+                            if (autoFitEnabled && pdfDocument && !isRendering) {
+                                calculateAutoFitScale().then(() => {
+                                    if (canvasElement && !isRendering) {
+                                        renderPage();
+                                    }
+                                });
+                            }
+                        }, 200);
+                    }
                 }
             });
             resizeObserver.observe(containerElement);
@@ -411,6 +418,7 @@
         onmouseup={handleMouseUp}
         onmouseleave={handleMouseUp}
         onwheel={handleWheel}
+        dir="ltr"
     >
         {#if isLoading}
             <div class="flex items-center justify-center h-full">
