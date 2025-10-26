@@ -1,6 +1,6 @@
 {
     "name": "sv-pdf",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "A comprehensive PDF viewer and acceptance component library for Svelte",
     "author": "SIKTEC-LAB",
     "license": "MIT",
