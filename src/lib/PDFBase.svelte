@@ -28,6 +28,7 @@
         autoFitHeight?: boolean;
         showControls?: boolean;
         controlsPosition?: 'top' | 'bottom';
+        resetZoomMode?: 'width' | 'height' | '100%';
         onPageChange?: (page: number) => void;
         api?: PDFApi;
         children?: Snippet;
@@ -43,6 +44,7 @@
         autoFitHeight = false,
         showControls = true,
         controlsPosition = 'top',
+        resetZoomMode = 'width',
         onPageChange,
         api = $bindable(),
         children,
@@ -277,9 +279,17 @@
 
     async function resetZoom() {
         if (!isRendering) {
-            scale = 1;
             panOffset = { x: 0, y: 0 };
             lastPanOffset = { x: 0, y: 0 };
+            
+            if (resetZoomMode === '100%') {
+                scale = 1;
+            } else if (resetZoomMode === 'width') {
+                await calculateWidthFitScale();
+            } else if (resetZoomMode === 'height') {
+                await calculateAutoFitScale();
+            }
+            
             await renderPage();
         }
     }

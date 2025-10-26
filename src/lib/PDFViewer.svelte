@@ -39,6 +39,7 @@
         autoFitHeight?: boolean;
         showControls?: boolean;
         controlsPosition?: 'top' | 'bottom';
+        resetZoomMode?: 'width' | 'height' | '100%';
         controls?: Snippet<[ControlsProps]>;
         navigationControls?: Snippet<[ControlsProps]>;
         zoomControls?: Snippet<[ControlsProps]>;
@@ -56,6 +57,7 @@
         autoFitHeight = false,
         showControls = true,
         controlsPosition = 'top',
+        resetZoomMode = 'width',
         controls,
         navigationControls,
         zoomControls,
@@ -211,6 +213,7 @@
         showControls={false}
         controlsPosition="top"
         {controlsContent}
+        {resetZoomMode}
         bind:api
     />
 

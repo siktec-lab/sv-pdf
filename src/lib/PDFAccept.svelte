@@ -44,13 +44,14 @@
         height?: number | string;
         autoFitHeight?: false;
         controlsPosition?: 'top' | 'bottom';
+        resetZoomMode?: 'width' | 'height' | '100%';
         controls?: Snippet<[AcceptControlsProps]>;
         navigationControls?: Snippet<[AcceptControlsProps]>;
         zoomControls?: Snippet<[AcceptControlsProps]>;
         actionControls?: Snippet<[AcceptControlsProps]>;
-    progressIndicator?: Snippet<[AcceptControlsProps]>;
-    disableControls?: DisableControls;
-    controlsContent?: Record<string, string | undefined>;
+        progressIndicator?: Snippet<[AcceptControlsProps]>;
+        disableControls?: DisableControls;
+        controlsContent?: Record<string, string | undefined>;
         onComplete?: () => void;
     }
 
@@ -61,6 +62,7 @@
         height = 600,
         autoFitHeight = false,
         controlsPosition = 'bottom',
+        resetZoomMode = 'width',
         controls,
         navigationControls,
         zoomControls,
@@ -275,6 +277,7 @@
         showControls={false}
         {controlsPosition}
         {controlsContent}
+        {resetZoomMode}
         onPageChange={handlePageChange}
         bind:api
     >
