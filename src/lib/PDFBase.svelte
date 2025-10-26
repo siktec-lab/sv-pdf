@@ -3,6 +3,14 @@
     import { BROWSER as browser } from 'esm-env';
     import type { Snippet } from 'svelte';
 
+    export interface PDFBaseStyling {
+        container?: string[]; // default: "flex items-center justify-center h-full text-gray-500"
+        loadingIndicator?: string[]; // default: "flex items-center justify-center h-full text-gray-500"
+        errorMessage?: string[]; // default: "flex items-center justify-center h-full text-red-500"
+        canvasWrapper?: string[]; // default: "flex items-center justify-center min-h-full p-4"
+        canvas?: string[]; // default: "shadow-lg bg-white"
+    }
+
     interface PDFApi {
         currentPage: number;
         totalPages: number;
@@ -34,6 +42,7 @@
         children?: Snippet;
         // generic map of text keys used by parent components (allows different components to pass different shapes)
         controlsContent?: Record<string, string | undefined>;
+        baseStyling?: PDFBaseStyling;
     }
 
     let {
@@ -48,7 +57,8 @@
         onPageChange,
         api = $bindable(),
         children,
-        controlsContent = {}
+        controlsContent = {},
+        baseStyling = {}
     }: Props = $props();
 
     let autoFitEnabled = $state(autoFitHeight);
@@ -443,7 +453,10 @@
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
     bind:this={containerElement}
-    class="flex-1 overflow-hidden relative bg-gray-100"
+    class={[
+        { "flex-1 overflow-hidden relative bg-gray-100": !baseStyling?.container },
+        ...(baseStyling?.container || [])
+    ]}
     role="application"
     tabindex="0"
     aria-label={controlsContent.ariaLabel ?? 'PDF viewer - Use mouse to pan and scroll to zoom'}
@@ -458,12 +471,18 @@
     dir="ltr"
 >
     {#if isLoading}
-        <div class="flex items-center justify-center h-full">
-            <div class="text-gray-500">{controlsContent.loadingText ?? 'Loading PDF...'}</div>
+        <div class={[
+            { "flex items-center justify-center h-full text-gray-500": !baseStyling?.loadingIndicator },
+            ...(baseStyling?.loadingIndicator || [])
+        ]}>
+            <div>{controlsContent.loadingText ?? 'Loading PDF...'}</div>
         </div>
     {:else if error}
-        <div class="flex items-center justify-center h-full">
-            <div class="text-red-500">
+        <div class={[
+            {"flex items-center justify-center h-full text-red-500": !baseStyling?.errorMessage },
+            ...(baseStyling?.errorMessage || [])
+        ]}>
+            <div>
                 {#if controlsContent.errorText}
                     {controlsContent.errorText.replace('{msg}', String(error))}
                 {:else}
@@ -473,12 +492,18 @@
         </div>
     {:else}
         <div
-            class="flex items-center justify-center min-h-full p-4"
+            class={[
+                { "flex items-center justify-center min-h-full p-4" : !baseStyling?.canvasWrapper },
+                ...(baseStyling?.canvasWrapper || [])
+            ]}
             style="transform: translate({panOffset.x}px, {panOffset.y}px);"
         >
             <canvas
                 bind:this={canvasElement}
-                class="shadow-lg bg-white"
+                class={[
+                    { "shadow-lg bg-white" : !baseStyling?.canvas },
+                    ...(baseStyling?.canvas || [])
+                ]}
                 style="cursor: {isPanning ? 'grabbing' : 'grab'};"
             ></canvas>
         </div>

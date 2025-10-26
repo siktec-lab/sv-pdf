@@ -1,6 +1,23 @@
 <script lang="ts">
     import PDFBase from './PDFBase.svelte';
     import type { Snippet } from 'svelte';
+    import type { PDFBaseStyling } from './PDFBase.svelte';
+
+    export interface PDFAcceptStyling extends PDFBaseStyling {
+        wrapper?: string[]; // default: "flex flex-col bg-gray-50 rounded-lg shadow-lg overflow-hidden"
+        controls?: string[]; // default: "flex items-center justify-between gap-4 p-4 bg-white border-gray-200"
+        navigationSection?: string[]; // default: "flex items-center gap-2 flex-shrink-0"
+        navigationButton?: string[]; // default: "px-3 py-2 text-sm font-semibold bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+        pageIndicator?: string[]; // default: "text-sm font-medium text-gray-700 text-center bg-gray-50 px-3 py-2 rounded-full whitespace-nowrap"
+        zoomSection?: string[]; // default: "flex items-center gap-1"
+        zoomButton?: string[]; // default: "px-3 py-2 text-sm font-semibold bg-green-50 text-green-700 rounded-full hover:bg-green-100 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+        zoomScale?: string[]; // default: "text-sm font-medium text-gray-700 text-center bg-gray-50 px-3 py-2 rounded-full min-w-[60px]"
+        actionsSection?: string[]; // default: "flex items-center gap-2"
+        resetButton?: string[]; // default: "px-3 py-2 text-sm font-semibold bg-gray-50 text-gray-700 rounded-full hover:bg-gray-100 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+        doneButton?: string[]; // default: "px-4 py-2 text-sm font-semibold bg-emerald-50 text-emerald-700 rounded-full hover:bg-emerald-100 transition-colors border-2 border-emerald-200 whitespace-nowrap"
+        progressIndicator?: string[]; // default: "absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-gray-600 shadow-md"
+        progressCompleted?: string[]; // default: "text-emerald-600"
+    }
 
     interface AcceptControlsProps {
         currentPage: number;
@@ -21,14 +38,23 @@
 
     interface DisableControls {
         navigation?: boolean;
+        prev?: boolean;
+        next?: boolean;
         zoom?: boolean;
+        zoomIn?: boolean;
+        zoomOut?: boolean;
         actions?: boolean;
+        reset?: boolean;
+        done?: boolean;
         progress?: boolean;
     }
 
     interface ControlsContent {
-        prevButton?: string;
-        nextButton?: string;
+        prevPage?: string;
+        nextPage?: string;
+        prevPageAriaLabel?: string;
+        nextPageAriaLabel?: string;
+        pageIndicator?: string;
         zoomOutButton?: string;
         zoomInButton?: string;
         resetButton?: string;
@@ -51,8 +77,9 @@
         actionControls?: Snippet<[AcceptControlsProps]>;
         progressIndicator?: Snippet<[AcceptControlsProps]>;
         disableControls?: DisableControls;
-        controlsContent?: Record<string, string | undefined>;
+        controlsContent?: ControlsContent;
         onComplete?: () => void;
+        baseStyling?: PDFAcceptStyling;
     }
 
     let {
@@ -70,7 +97,8 @@
         progressIndicator,
         disableControls = {},
         controlsContent = {},
-        onComplete
+        onComplete,
+        baseStyling = {}
     }: Props = $props();
 
     let api: any = $state({
@@ -148,65 +176,114 @@
     });
 </script>
 
-{#snippet defaultNavigationControls(ctx: AcceptControlsProps)}
-    <div class="flex items-center gap-2 flex-shrink-0">
-        <button
-            onclick={ctx.prevPage}
-            disabled={!ctx.canGoPrev || ctx.isRendering}
-            class="px-3 py-2 text-sm font-semibold bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
-        >
-            {controlsContent.prevButton ?? 'Prev'}
-        </button>
-        <span class="text-sm font-medium text-gray-700 text-center bg-gray-50 px-3 py-2 rounded-full whitespace-nowrap">
-            {ctx.currentPage} / {ctx.totalPages}
-        </span>
-        <button
-            onclick={ctx.nextPage}
-            disabled={!ctx.canGoNext || ctx.isRendering}
-            class="px-3 py-2 text-sm font-semibold bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
-        >
-            {controlsContent.nextButton ?? 'Next'}
-        </button>
-    </div>
-{/snippet}
+    {#snippet defaultNavigationControls(ctx: AcceptControlsProps)}
+        <div class={[
+            { "flex items-center gap-2 flex-shrink-0": !baseStyling?.navigationSection },
+            ...(baseStyling?.navigationSection || [])
+        ]}>
+            {#if !disableControls.prev}
+                <button
+                    onclick={ctx.prevPage}
+                    disabled={!ctx.canGoPrev || ctx.isRendering}
+                    class={[
+                        { "px-3 py-2 text-sm font-semibold bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors": !baseStyling?.navigationButton },
+                        ...(baseStyling?.navigationButton || [])
+                    ]}
+                    aria-label={controlsContent.prevPageAriaLabel}
+                >
+                    {controlsContent.prevPage ?? 'Prev'}
+                </button>
+            {/if}
+            <span class={[
+                { "text-sm font-medium text-gray-700 text-center bg-gray-50 px-3 py-2 rounded-full whitespace-nowrap": !baseStyling?.pageIndicator },
+                ...(baseStyling?.pageIndicator || [])
+            ]}>
+                {controlsContent.pageIndicator
+                    ? controlsContent.pageIndicator
+                        .replace('{current}', ctx.currentPage.toString())
+                        .replace('{total}', ctx.totalPages.toString())
+                    : `${ctx.currentPage} / ${ctx.totalPages}`}
+            </span>
+            {#if !disableControls.next}
+                <button
+                    onclick={ctx.nextPage}
+                    disabled={!ctx.canGoNext || ctx.isRendering}
+                    class={[
+                        { "px-3 py-2 text-sm font-semibold bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors": !baseStyling?.navigationButton },
+                        ...(baseStyling?.navigationButton || [])
+                    ]}
+                    aria-label={controlsContent.nextPageAriaLabel}
+                >
+                    {controlsContent.nextPage ?? 'Next'}
+                </button>
+            {/if}
+        </div>
+    {/snippet}
 
 {#snippet defaultZoomControls(ctx: AcceptControlsProps)}
-    <div class="flex items-center gap-1">
-        <button
-            onclick={ctx.zoomOut}
-            disabled={ctx.isRendering}
-            class="px-3 py-2 text-sm font-semibold bg-green-50 text-green-700 rounded-full hover:bg-green-100 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
-        >
-            {controlsContent.zoomOutButton ?? '−'}
-        </button>
-        <span class="text-sm font-medium text-gray-700 text-center bg-gray-50 px-3 py-2 rounded-full min-w-[60px]">
+    <div class={[
+        { "flex items-center gap-1": !baseStyling?.zoomSection },
+        ...(baseStyling?.zoomSection || [])
+    ]}>
+        {#if !disableControls.zoomOut}
+            <button
+                onclick={ctx.zoomOut}
+                disabled={ctx.isRendering}
+                class={[
+                    { "px-3 py-2 text-sm font-semibold bg-green-50 text-green-700 rounded-full hover:bg-green-100 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors": !baseStyling?.zoomButton },
+                    ...(baseStyling?.zoomButton || [])
+                ]}
+            >
+                {controlsContent.zoomOutButton ?? '−'}
+            </button>
+        {/if}
+        <span class={[
+            { "text-sm font-medium text-gray-700 text-center bg-gray-50 px-3 py-2 rounded-full min-w-[60px]": !baseStyling?.zoomScale },
+            ...(baseStyling?.zoomScale || [])
+        ]}>
             {ctx.scale}%
         </span>
-        <button
-            onclick={ctx.zoomIn}
-            disabled={ctx.isRendering}
-            class="px-3 py-2 text-sm font-semibold bg-green-50 text-green-700 rounded-full hover:bg-green-100 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
-        >
-            {controlsContent.zoomInButton ?? '+'}
-        </button>
+        {#if !disableControls.zoomIn}
+            <button
+                onclick={ctx.zoomIn}
+                disabled={ctx.isRendering}
+                class={[
+                    { "px-3 py-2 text-sm font-semibold bg-green-50 text-green-700 rounded-full hover:bg-green-100 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors": !baseStyling?.zoomButton },
+                    ...(baseStyling?.zoomButton || [])
+                ]}
+            >
+                {controlsContent.zoomInButton ?? '+'}
+            </button>
+        {/if}
     </div>
 {/snippet}
 
 {#snippet defaultActionControls(ctx: AcceptControlsProps)}
-    <div class="flex items-center gap-2">
-        <button
-            onclick={ctx.resetZoom}
-            disabled={ctx.isRendering}
-            class="px-3 py-2 text-sm font-semibold bg-gray-50 text-gray-700 rounded-full hover:bg-gray-100 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
-        >
-            {controlsContent.resetButton ?? 'Reset'}
-        </button>
+    <div class={[
+        { "flex items-center gap-2": !baseStyling?.actionsSection },
+        ...(baseStyling?.actionsSection || [])
+    ]}>
+        {#if !disableControls.reset}
+            <button
+                onclick={ctx.resetZoom}
+                disabled={ctx.isRendering}
+                class={[
+                    { "px-3 py-2 text-sm font-semibold bg-gray-50 text-gray-700 rounded-full hover:bg-gray-100 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors": !baseStyling?.resetButton },
+                    ...(baseStyling?.resetButton || [])
+                ]}
+            >
+                {controlsContent.resetButton ?? 'Reset'}
+            </button>
+        {/if}
         
         <!-- Complete Button (only show when user has seen all pages) -->
-        {#if ctx.maxPageReached >= ctx.totalPages && !ctx.isCompleted}
+        {#if !disableControls.done && ctx.maxPageReached >= ctx.totalPages && !ctx.isCompleted}
             <button
                 onclick={ctx.markComplete}
-                class="px-4 py-2 text-sm font-semibold bg-emerald-50 text-emerald-700 rounded-full hover:bg-emerald-100 transition-colors border-2 border-emerald-200 whitespace-nowrap"
+                class={[
+                    { "px-4 py-2 text-sm font-semibold bg-emerald-50 text-emerald-700 rounded-full hover:bg-emerald-100 transition-colors border-2 border-emerald-200 whitespace-nowrap": !baseStyling?.doneButton },
+                    ...(baseStyling?.doneButton || [])
+                ]}
             >
                 {controlsContent.doneButton ?? 'Done'}
             </button>
@@ -215,9 +292,15 @@
 {/snippet}
 
 {#snippet defaultProgressIndicator(ctx: AcceptControlsProps)}
-    <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-gray-600 shadow-md">
-        {#if ctx.isCompleted}
-            <span class="text-emerald-600">{controlsContent.completedText ?? '✓ Completed'}</span>
+    <div class={[
+        { "absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-gray-600 shadow-md": !baseStyling?.progressIndicator },
+        ...(baseStyling?.progressIndicator || [])
+    ]}>
+        {#if ctx.isCompleted || (disableControls.done && ctx.maxPageReached >= ctx.totalPages)}
+            <span class={[
+                { "text-emerald-600": !baseStyling?.progressCompleted },
+                ...(baseStyling?.progressCompleted || [])
+            ]}>{controlsContent.completedText ?? '✓ Completed'}</span>
         {:else}
             {(controlsContent.progressText ?? 'Progress: {current}/{total}')
                 .replace('{current}', String(ctx.maxPageReached))
@@ -227,7 +310,10 @@
 {/snippet}
 
 {#snippet defaultControls(ctx: AcceptControlsProps)}
-    <div class="flex items-center justify-between gap-4 p-4 bg-white {controlsPosition === 'bottom' ? 'border-t' : 'border-b'} border-gray-200">
+    <div class={[
+        { [`flex items-center justify-between gap-4 p-4 bg-white ${controlsPosition === 'bottom' ? 'border-t' : 'border-b'} border-gray-200`]: !baseStyling?.controls },
+        ...(baseStyling?.controls || [])
+    ]}>
         <!-- Page Navigation -->
         {#if !disableControls.navigation}
             {#if navigationControls}
@@ -258,7 +344,10 @@
     </div>
 {/snippet}
 
-<div class="flex flex-col bg-gray-50 rounded-lg shadow-lg overflow-hidden" style="width: {typeof width === 'number' ? width + 'px' : width}; height: {typeof height === 'number' ? height + 'px' : height};">
+<div class={[
+    { "flex flex-col bg-gray-50 rounded-lg shadow-lg overflow-hidden": !baseStyling?.wrapper },
+    ...(baseStyling?.wrapper || [])
+]} style="width: {typeof width === 'number' ? width + 'px' : width}; height: {typeof height === 'number' ? height + 'px' : height};">
     <!-- Top Controls -->
     {#if controlsPosition === 'top'}
         {#if controls}
@@ -276,9 +365,16 @@
         {autoFitHeight}
         showControls={false}
         {controlsPosition}
-        {controlsContent}
+        controlsContent={controlsContent as Record<string, string | undefined>}
         {resetZoomMode}
         onPageChange={handlePageChange}
+        baseStyling={{
+            container: baseStyling?.container,
+            loadingIndicator: baseStyling?.loadingIndicator,
+            errorMessage: baseStyling?.errorMessage,
+            canvasWrapper: baseStyling?.canvasWrapper,
+            canvas: baseStyling?.canvas
+        }}
         bind:api
     >
         {#if !api.isLoading && !api.error && !disableControls.progress}
