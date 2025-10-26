@@ -50,6 +50,10 @@
         zoomInButton?: string;
         autoFitButton?: string;
         resetButton?: string;
+        // PDFBase controls content
+        loadingText?: string;
+        errorText?: string;
+        ariaLabel?: string;
     }
 
     interface Props {
@@ -66,9 +70,10 @@
         zoomControls?: Snippet<[ControlsProps]>;
         actionControls?: Snippet<[ControlsProps]>;
         disableControls?: DisableControls;
-        // generic map so it can be forwarded to PDFBase (which accepts a generic map)
-        controlsContent?: Record<string, string | undefined>;
+        controlsContent?: ControlsContent;
         baseStyling?: PDFViewerStyling;
+        onPageChange?: (page: number) => void;
+        api?: any;
     }
 
     let {
@@ -86,25 +91,25 @@
         actionControls,
         disableControls = {},
         controlsContent = {},
-        baseStyling = {}
+        baseStyling = {},
+        onPageChange,
+        api = $bindable({
+            currentPage: 1,
+            totalPages: 0,
+            scale: 1,
+            autoFitEnabled: false,
+            isRendering: false,
+            isLoading: true,
+            error: '',
+            setPage: async () => {},
+            prevPage: async () => {},
+            nextPage: async () => {},
+            zoomIn: async () => {},
+            zoomOut: async () => {},
+            resetZoom: async () => {},
+            toggleAutoFit: async () => {}
+        })
     }: Props = $props();
-
-    let api: any = $state({
-        currentPage: 1,
-        totalPages: 0,
-        scale: 1,
-        autoFitEnabled: false,
-        isRendering: false,
-        isLoading: true,
-        error: '',
-        setPage: async () => {},
-        prevPage: async () => {},
-        nextPage: async () => {},
-        zoomIn: async () => {},
-        zoomOut: async () => {},
-        resetZoom: async () => {},
-        toggleAutoFit: async () => {}
-    });
 
     // Create controls props from API
     let controlsProps = $derived({
@@ -286,8 +291,9 @@
         {autoFitHeight} 
         showControls={false}
         controlsPosition="top"
-        {controlsContent}
+        controlsContent={controlsContent as Record<string, string | undefined>}
         {resetZoomMode}
+        {onPageChange}
         baseStyling={{
             container: baseStyling?.container,
             loadingIndicator: baseStyling?.loadingIndicator,

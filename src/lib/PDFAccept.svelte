@@ -59,8 +59,12 @@
         zoomInButton?: string;
         resetButton?: string;
         doneButton?: string;
-        completedText?: string;
         progressText?: string; // Use {current} and {total} as placeholders
+        completedText?: string;
+        // PDFBase controls content
+        loadingText?: string;
+        errorText?: string;
+        ariaLabel?: string;
     }
 
     interface Props {
@@ -68,7 +72,8 @@
         base64?: string;
         width?: number | string;
         height?: number | string;
-        autoFitHeight?: false;
+        autoFitHeight?: boolean;
+        showControls?: boolean;
         controlsPosition?: 'top' | 'bottom';
         resetZoomMode?: 'width' | 'height' | '100%';
         controls?: Snippet<[AcceptControlsProps]>;
@@ -78,8 +83,10 @@
         progressIndicator?: Snippet<[AcceptControlsProps]>;
         disableControls?: DisableControls;
         controlsContent?: ControlsContent;
-        onComplete?: () => void;
         baseStyling?: PDFAcceptStyling;
+        onPageChange?: (page: number) => void;
+        onComplete?: () => void;
+        api?: any;
     }
 
     let {
@@ -88,6 +95,7 @@
         width = 800,
         height = 600,
         autoFitHeight = false,
+        showControls = true,
         controlsPosition = 'bottom',
         resetZoomMode = 'width',
         controls,
@@ -98,25 +106,25 @@
         disableControls = {},
         controlsContent = {},
         onComplete,
-        baseStyling = {}
+        baseStyling = {},
+        onPageChange,
+        api = $bindable({
+            currentPage: 1,
+            totalPages: 0,
+            scale: 1,
+            autoFitEnabled: false,
+            isRendering: false,
+            isLoading: true,
+            error: '',
+            setPage: async () => {},
+            prevPage: async () => {},
+            nextPage: async () => {},
+            zoomIn: async () => {},
+            zoomOut: async () => {},
+            resetZoom: async () => {},
+            toggleAutoFit: async () => {}
+        })
     }: Props = $props();
-
-    let api: any = $state({
-        currentPage: 1,
-        totalPages: 0,
-        scale: 1,
-        autoFitEnabled: false,
-        isRendering: false,
-        isLoading: true,
-        error: '',
-        setPage: async () => {},
-        prevPage: async () => {},
-        nextPage: async () => {},
-        zoomIn: async () => {},
-        zoomOut: async () => {},
-        resetZoom: async () => {},
-        toggleAutoFit: async () => {}
-    });
     
     let maxPageReached = $state(1);
     let isCompleted = $state(false);
@@ -124,6 +132,7 @@
     // Track page changes to update maxPageReached
     function handlePageChange(page: number) {
         maxPageReached = Math.max(maxPageReached, page);
+        onPageChange?.(page);
     }
 
     // Reset state when PDF source changes
@@ -349,7 +358,7 @@
     ...(baseStyling?.wrapper || [])
 ]} style="width: {typeof width === 'number' ? width + 'px' : width}; height: {typeof height === 'number' ? height + 'px' : height};">
     <!-- Top Controls -->
-    {#if controlsPosition === 'top'}
+    {#if showControls && controlsPosition === 'top'}
         {#if controls}
             {@render controls(acceptControlsProps)}
         {:else}
@@ -387,7 +396,7 @@
     </PDFBase>
 
     <!-- Bottom Controls -->
-    {#if controlsPosition === 'bottom'}
+    {#if showControls && controlsPosition === 'bottom'}
         {#if controls}
             {@render controls(acceptControlsProps)}
         {:else}
